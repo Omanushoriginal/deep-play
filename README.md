@@ -1,10 +1,10 @@
 # DEEP PLAY
 
-A no-options football trivia game built as a static website. The app loads a pool of 2,000 distinct questions: 65 editorial trivia questions plus historical match-result questions from World Cup, UEFA EURO and Champions League archives. Answers are typed; accepted accents and common short name variants are normalized automatically. Play solo, or play a live, share-code group match with up to eight players.
+A no-options football trivia game built as a static website. The app loads a pool of up to 3,000 distinct questions: curated tournament trivia and iconic moments, plus historical match-result questions from FIFA World Cups, UEFA EURO, Copa América and Champions League archives. Each round includes three iconic-moment questions. Answers are typed; accepted accents and common short name variants are normalized automatically. Play solo, or play a live, share-code group match with up to eight players.
 
 ## Run locally
 
-Serve the folder over HTTP (for example, in PowerShell run `py -m http.server 8000` from the project folder, then open `http://localhost:8000`). The match archive loads from openfootball's public-domain GitHub data on page load, so an internet connection is required for the full pool. Multiplayer also uses Firebase Authentication and Cloud Firestore, so configure Firebase once before creating/joining rooms.
+Serve the folder over HTTP (for example, in PowerShell run `py -m http.server 8000` from the project folder, then open `http://localhost:8000`). Historical match data loads from openfootball's public-domain GitHub archives on page load, so an internet connection is required for the full pool. Multiplayer also uses Firebase Authentication and Cloud Firestore, so configure Firebase once before creating/joining rooms.
 
 ## Enable online multiplayer
 
@@ -28,8 +28,8 @@ The site is served directly from the repository root. The supplied workflow at `
 
 ## Add questions
 
-Edit the `bank` array in `app.js`. Each entry has a `cat`, `q`, an array of accepted `a` strings, and a short explanatory `fact`. Each round draws 15 random questions.
+Edit the `bank` array in `app.js` for tournament trivia, or `iconic-moments.js` for curated moment questions. Each entry has a `cat`, `q`, accepted `a` strings, and a short explanatory `fact`. Each round draws 15 questions, including three iconic moments.
 
 ## Sources
 
-The quiz is an unofficial fan project. The hand-written questions reference [FIFA World Cup records](https://www.fifa.com/en/articles/quickest-fastest-goals) and [UEFA EURO history](https://www.uefa.com/uefaeuro/history/). Match-result questions are parsed from openfootball's public-domain [Champions League](https://github.com/openfootball/champions-league), [World Cup](https://github.com/openfootball/worldcup) and [EURO](https://github.com/openfootball/euro) datasets. The start screen reports the number loaded if the archive is unavailable or incomplete.
+The quiz is an unofficial fan project. Iconic-moment questions reference official [FIFA World Cup archives](https://www.fifa.com/en/tournaments/mens/worldcup) and [UEFA competition archives](https://www.uefa.com/uefachampionsleague/history/). Match-result questions are parsed from openfootball's public-domain [Champions League](https://github.com/openfootball/champions-league), [World Cup](https://github.com/openfootball/worldcup), [EURO](https://github.com/openfootball/euro) and [Copa América](https://github.com/openfootball/copa-america) datasets. The start screen reports the count actually loaded if the archive is unavailable or incomplete.
