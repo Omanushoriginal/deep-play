@@ -1,10 +1,10 @@
 # DEEP PLAY
 
-A no-options football trivia game built as a static website. Questions span the FIFA World Cup, UEFA Champions League, EURO, Copa América and AFCON. Answers are typed; accepted accents and common short name variants are normalized automatically. Play solo, or challenge a friend in a live, share-code head-to-head match.
+A no-options football trivia game built as a static website. The app loads a pool of 2,000 distinct questions: 65 editorial trivia questions plus historical match-result questions from World Cup, UEFA EURO and Champions League archives. Answers are typed; accepted accents and common short name variants are normalized automatically. Play solo, or challenge a friend in a live, share-code head-to-head match.
 
 ## Run locally
 
-Open `index.html` in a browser for solo play. There is no build step or package manager. Online multiplayer uses Firebase Authentication and Cloud Firestore, so configure Firebase once before creating/joining rooms.
+Serve the folder over HTTP (for example, in PowerShell run `py -m http.server 8000` from the project folder, then open `http://localhost:8000`). The match archive loads from openfootball's public-domain GitHub data on page load, so an internet connection is required for the full pool. Multiplayer also uses Firebase Authentication and Cloud Firestore, so configure Firebase once before creating/joining rooms.
 
 ## Enable online multiplayer
 
@@ -32,4 +32,5 @@ Edit the `bank` array in `app.js`. Each entry has a `cat`, `q`, an array of acce
 
 ## Sources
 
-The quiz is an unofficial fan project. Records and tournament facts can be checked against [FIFA World Cup records](https://www.fifa.com/en/articles/quickest-fastest-goals), [UEFA EURO history](https://www.uefa.com/uefaeuro/history/) and the official competition archives.
+The quiz is an unofficial fan project. The hand-written questions reference [FIFA World Cup records](https://www.fifa.com/en/articles/quickest-fastest-goals) and [UEFA EURO history](https://www.uefa.com/uefaeuro/history/). Match-result questions are parsed from openfootball's public-domain [Champions League](https://github.com/openfootball/champions-league), [World Cup](https://github.com/openfootball/worldcup) and [EURO](https://github.com/openfootball/euro) datasets. The start screen reports the number loaded if the archive is unavailable or incomplete.
+

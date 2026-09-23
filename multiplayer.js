@@ -13,8 +13,8 @@ const answersMatch = (value, variants) => {
 const roundQuestions = () => {
   const bank = window.questionBank || [];
   const shuffle = list => { const copy = [...list]; for (let i = copy.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [copy[i], copy[j]] = [copy[j], copy[i]]; } return copy; };
-  const categories = ['WORLD CUP', 'CHAMPIONS LEAGUE', 'EUROPEAN CHAMPIONSHIP', 'COPA AMÉRICA', 'AFCON'];
-  const round = categories.flatMap((cat, i) => shuffle(bank.filter(q => q.cat === cat)).slice(0, i < 3 ? 3 : 1));
+  const categories = [['WORLD CUP',2],['WORLD CUP ARCHIVE',2],['CHAMPIONS LEAGUE',2],['CHAMPIONS LEAGUE ARCHIVE',2],['EUROPEAN CHAMPIONSHIP',2],['EUROPEAN CHAMPIONSHIP ARCHIVE',2],['COPA AMÉRICA',1],['AFCON',1]];
+  const round = categories.flatMap(([cat, count]) => shuffle(bank.filter(q => q.cat === cat)).slice(0, count));
   const selected = new Set(round);
   return shuffle([...round, ...shuffle(bank.filter(q => !selected.has(q))).slice(0, 15 - round.length)]);
 };
@@ -121,6 +121,8 @@ async function joinRoom() {
 async function kickOff() {
   try {
     if (playerData.length !== 2 || roomData?.host !== uid) return;
+    lobbyMessage('Loading the historical match archive…');
+    await window.questionBankReady;
     await updateDoc(doc(db, 'rooms', roomId), { status: 'playing', questions: roundQuestions() });
   } catch (error) { lobbyMessage(error.message, true); }
 }
