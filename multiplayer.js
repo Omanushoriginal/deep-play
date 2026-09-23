@@ -13,7 +13,7 @@ const answersMatch = (value, variants) => {
 const roundQuestions = () => {
   const bank = window.questionBank || [];
   const shuffle = list => { const copy = [...list]; for (let i = copy.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [copy[i], copy[j]] = [copy[j], copy[i]]; } return copy; };
-  const categories = [['WORLD CUP',1],['WORLD CUP ARCHIVE',1],['CHAMPIONS LEAGUE',1],['CHAMPIONS LEAGUE ARCHIVE',1],['EUROPEAN CHAMPIONSHIP',1],['EUROPEAN CHAMPIONSHIP ARCHIVE',1],['COPA AMÉRICA',1],['AFCON',1],['ICONIC MOMENTS',3]];
+  const categories = [['WORLD CUP',1],['CHAMPIONS LEAGUE',1],['EUROPEAN CHAMPIONSHIP',1],['COPA AMÉRICA',1],['AFCON',1],['ICONIC MOMENTS',3]];
   const round = categories.flatMap(([cat, count]) => shuffle(bank.filter(q => q.cat === cat)).slice(0, count));
   const selected = new Set(round);
   return shuffle([...round, ...shuffle(bank.filter(q => !selected.has(q))).slice(0, 15 - round.length)]);
@@ -134,7 +134,6 @@ async function joinRoom() {
 async function kickOff() {
   try {
     if (playerData.length < 2 || playerData.length > 8 || roomData?.host !== uid) return;
-    lobbyMessage('Loading the historical match archive…');
     await window.questionBankReady;
     await updateDoc(doc(db, 'rooms', roomId), { status: 'playing', questions: roundQuestions() });
   } catch (error) { lobbyMessage(error.message, true); }

@@ -1,4 +1,3 @@
-import { loadArchiveQuestions } from './match-data.js';
 import { iconicQuestions } from './iconic-moments.js';
 
 const bank=[
@@ -70,11 +69,12 @@ const bank=[
 ];
 bank.push(...iconicQuestions);
 window.questionBank=bank;
-window.questionBankReady=loadArchiveQuestions().then(extra=>{const needed=Math.max(0,3000-bank.length);bank.push(...shuffle(extra).slice(0,needed));window.questionBank=bank;const count=$('questionPoolStatus');if(count)count.textContent=bank.length===3000?'3,000 DISTINCT QUESTIONS READY':`${bank.length} QUESTIONS READY · ARCHIVE PARTIAL`;return bank}).catch(()=>{const count=$('questionPoolStatus');if(count)count.textContent=`${bank.length} CURATED QUESTIONS · ARCHIVE UNAVAILABLE`;return bank});
+window.questionBankReady=Promise.resolve(bank);
 const $=id=>document.getElementById(id);let round=[],index=0,score=0,streak=0,locked=false;
+const poolStatus=$('questionPoolStatus');if(poolStatus)poolStatus.textContent=`${bank.length} CURATED QUESTIONS · 3 ICONIC MOMENTS PER ROUND`;
 const norm=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
 function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-async function begin(){const button=$('startBtn');if(button)button.disabled=true;await window.questionBankReady;const cats=[['WORLD CUP',1],['WORLD CUP ARCHIVE',1],['CHAMPIONS LEAGUE',1],['CHAMPIONS LEAGUE ARCHIVE',1],['EUROPEAN CHAMPIONSHIP',1],['EUROPEAN CHAMPIONSHIP ARCHIVE',1],['COPA AMÉRICA',1],['AFCON',1],['ICONIC MOMENTS',3]];round=cats.flatMap(([cat,n])=>shuffle(bank.filter(q=>q.cat===cat)).slice(0,n));const chosen=new Set(round);round.push(...shuffle(bank.filter(q=>!chosen.has(q))).slice(0,15-round.length));round=shuffle(round);index=score=streak=0;show('quiz');draw();if(button)button.disabled=false}
+async function begin(){const button=$('startBtn');if(button)button.disabled=true;await window.questionBankReady;const cats=[['WORLD CUP',1],['CHAMPIONS LEAGUE',1],['EUROPEAN CHAMPIONSHIP',1],['COPA AMÉRICA',1],['AFCON',1],['ICONIC MOMENTS',3]];round=cats.flatMap(([cat,n])=>shuffle(bank.filter(q=>q.cat===cat)).slice(0,n));const chosen=new Set(round);round.push(...shuffle(bank.filter(q=>!chosen.has(q))).slice(0,15-round.length));round=shuffle(round);index=score=streak=0;show('quiz');draw();if(button)button.disabled=false}
 function show(which){['intro','quiz','results'].forEach(id=>$(id).classList.toggle('hidden',id!==which))}
 function draw(){locked=false;let item=round[index];$('category').textContent=item.cat;$('counter').innerHTML=`${String(index+1).padStart(2,'0')} <i>/ 15</i>`;$('streak').textContent=`${streak} STREAK`;$('score').textContent=String(score).padStart(2,'0');$('progress').style.width=`${index/15*100}%`;$('questionIndex').textContent=String(index+1).padStart(2,'0');$('question').textContent=item.q;$('answer').value='';$('answer').disabled=false;$('submitBtn').disabled=false;$('feedback').textContent='';$('feedback').className='feedback';setTimeout(()=>$('answer').focus(),80)}
 function submit(){if(locked)return;let val=norm($('answer').value);if(!val){$('feedback').textContent='Put something on the board first.';$('feedback').className='feedback wrong';$('answer').focus();return}locked=true;let item=round[index],ok=item.a.some(x=>norm(x)===val);if(ok){score++;streak++;$('feedback').textContent=`ON THE MONEY. ${item.fact}`;$('feedback').className='feedback correct'}else{streak=0;$('feedback').textContent=`NOT QUITE. ${item.fact}`;$('feedback').className='feedback wrong'}$('score').textContent=String(score).padStart(2,'0');$('streak').textContent=`${streak} STREAK`;$('answer').disabled=true;$('submitBtn').disabled=true;$('progress').style.width=`${(index+1)/15*100}%`;setTimeout(()=>{index++;if(index===15)finish();else draw()},1850)}
