@@ -1,6 +1,6 @@
 # DEEP PLAY
 
-A no-options football trivia game built as a static website, with exactly 250 curated questions: 65 tournament-trivia questions and 185 iconic-moment questions, including 141 additions about memorable World Cup and Champions League moments. Match-result archive questions are not included. Each 15-question round includes three iconic-moment questions. Answers are typed; accepted accents and common short name variants are normalized automatically. Play solo, or play a live, share-code group match with up to eight players.
+A no-options football trivia game built as a static website, with 500 curated questions: 65 tournament-trivia questions, 185 iconic-moment questions, 125 transfer questions, and 125 player questions. Match-result archive questions are not included. Each 15-question round mixes tournament trivia, iconic moments, transfers, and player history. Answers are typed; accepted accents and common short name variants are normalized automatically. Questions are remembered on each browser and will not repeat there until fewer than 15 unused questions remain. Play solo, or play a live, share-code group match with up to eight players.
 
 ## Run locally
 
@@ -28,7 +28,7 @@ The site is served directly from the repository root. The supplied workflow at `
 
 ## Add questions
 
-Edit the `bank` array in `app.js` for tournament trivia, or `iconic-moments.js` for curated moment questions. Each entry has a `cat`, `q`, accepted `a` strings, and a short explanatory `fact`. Each round draws 15 questions, including three iconic moments.
+Edit the `bank` array in `app.js` for tournament trivia, `iconic-moments.js` for curated moment questions, or `history-questions.js` for transfers and players. Each entry has a `cat`, `q`, accepted `a` strings, and a short explanatory `fact`. Each round draws 15 questions across these topics.
 
 ## Sources
 

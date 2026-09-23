@@ -1,4 +1,5 @@
 import { iconicQuestions } from './iconic-moments.js';
+import { historyQuestions } from './history-questions.js';
 
 const bank=[
 {cat:'WORLD CUP',q:'Who scored the fastest goal in FIFA World Cup history, after just 11 seconds?',a:['hakan sukur','hakan şükür'],fact:'Hakan Şükür scored after 11 seconds for Türkiye against South Korea in 2002.'},
@@ -68,13 +69,21 @@ const bank=[
 {cat:'CHAMPIONS LEAGUE',q:'Who scored the winning goal in the 2014 final, deep into extra time?',a:['cristiano ronaldo','ronaldo'],fact:'Ronaldo’s penalty made it 4–1 after Gareth Bale, Marcelo and he added extra-time goals.'}
 ];
 bank.push(...iconicQuestions);
+bank.push(...historyQuestions);
 window.questionBank=bank;
 window.questionBankReady=Promise.resolve(bank);
 const $=id=>document.getElementById(id);let round=[],index=0,score=0,streak=0,locked=false;
-const poolStatus=$('questionPoolStatus');if(poolStatus)poolStatus.textContent=`${bank.length} CURATED QUESTIONS · 3 ICONIC MOMENTS PER ROUND`;
+const poolStatus=$('questionPoolStatus');if(poolStatus)poolStatus.textContent=`${bank.length} CURATED QUESTIONS · NO REPEATS UNTIL FEWER THAN 15 REMAIN`;
 const norm=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
 function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-async function begin(){const button=$('startBtn');if(button)button.disabled=true;await window.questionBankReady;const cats=[['WORLD CUP',1],['CHAMPIONS LEAGUE',1],['EUROPEAN CHAMPIONSHIP',1],['COPA AMÉRICA',1],['AFCON',1],['ICONIC MOMENTS',3]];round=cats.flatMap(([cat,n])=>shuffle(bank.filter(q=>q.cat===cat)).slice(0,n));const chosen=new Set(round);round.push(...shuffle(bank.filter(q=>!chosen.has(q))).slice(0,15-round.length));round=shuffle(round);index=score=streak=0;show('quiz');draw();if(button)button.disabled=false}
+const SEEN_KEY='deep-play-seen-question-prompts-v2';
+function readSeen(){try{return new Set(JSON.parse(localStorage.getItem(SEEN_KEY)||'[]'))}catch{return new Set()}}
+function rememberQuestions(items){const seen=readSeen();items.forEach(q=>seen.add(q.q));try{localStorage.setItem(SEEN_KEY,JSON.stringify([...seen]))}catch{}}
+function makeRound(){let seen=readSeen(),available=bank.filter(q=>!seen.has(q.q));if(available.length<15){seen.clear();available=bank}
+ const categories=[['WORLD CUP',1],['CHAMPIONS LEAGUE',1],['EUROPEAN CHAMPIONSHIP',1],['COPA AMÉRICA',1],['AFCON',1],['ICONIC MOMENTS',2],['ICONIC TRANSFERS',2],['ICONIC PLAYERS',2]];
+ let picked=categories.flatMap(([cat,n])=>shuffle(available.filter(q=>q.cat===cat)).slice(0,n));const selected=new Set(picked);picked.push(...shuffle(available.filter(q=>!selected.has(q))).slice(0,15-picked.length));picked=shuffle(picked);rememberQuestions(picked);return picked}
+window.makeFootballRound=makeRound;window.rememberFootballQuestions=rememberQuestions;
+async function begin(){const button=$('startBtn');if(button)button.disabled=true;await window.questionBankReady;round=makeRound();index=score=streak=0;show('quiz');draw();if(button)button.disabled=false}
 function show(which){['intro','quiz','results'].forEach(id=>$(id).classList.toggle('hidden',id!==which))}
 function draw(){locked=false;let item=round[index];$('category').textContent=item.cat;$('counter').innerHTML=`${String(index+1).padStart(2,'0')} <i>/ 15</i>`;$('streak').textContent=`${streak} STREAK`;$('score').textContent=String(score).padStart(2,'0');$('progress').style.width=`${index/15*100}%`;$('questionIndex').textContent=String(index+1).padStart(2,'0');$('question').textContent=item.q;$('answer').value='';$('answer').disabled=false;$('submitBtn').disabled=false;$('feedback').textContent='';$('feedback').className='feedback';setTimeout(()=>$('answer').focus(),80)}
 function submit(){if(locked)return;let val=norm($('answer').value);if(!val){$('feedback').textContent='Put something on the board first.';$('feedback').className='feedback wrong';$('answer').focus();return}locked=true;let item=round[index],ok=item.a.some(x=>norm(x)===val);if(ok){score++;streak++;$('feedback').textContent=`ON THE MONEY. ${item.fact}`;$('feedback').className='feedback correct'}else{streak=0;$('feedback').textContent=`NOT QUITE. ${item.fact}`;$('feedback').className='feedback wrong'}$('score').textContent=String(score).padStart(2,'0');$('streak').textContent=`${streak} STREAK`;$('answer').disabled=true;$('submitBtn').disabled=true;$('progress').style.width=`${(index+1)/15*100}%`;setTimeout(()=>{index++;if(index===15)finish();else draw()},1850)}

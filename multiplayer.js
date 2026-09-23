@@ -10,14 +10,7 @@ const answersMatch = (value, variants) => {
   const normalize = text => text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
   return variants.some(answer => normalize(answer) === normalize(value));
 };
-const roundQuestions = () => {
-  const bank = window.questionBank || [];
-  const shuffle = list => { const copy = [...list]; for (let i = copy.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [copy[i], copy[j]] = [copy[j], copy[i]]; } return copy; };
-  const categories = [['WORLD CUP',1],['CHAMPIONS LEAGUE',1],['EUROPEAN CHAMPIONSHIP',1],['COPA AMÉRICA',1],['AFCON',1],['ICONIC MOMENTS',3]];
-  const round = categories.flatMap(([cat, count]) => shuffle(bank.filter(q => q.cat === cat)).slice(0, count));
-  const selected = new Set(round);
-  return shuffle([...round, ...shuffle(bank.filter(q => !selected.has(q))).slice(0, 15 - round.length)]);
-};
+const roundQuestions = () => window.makeFootballRound?.() || [];
 function section(id, visible) { $(id).classList.toggle('hidden', !visible); }
 function showMultiPanel() {
   ['intro','quiz','results','multi'].forEach(id => $(id).classList.toggle('hidden', id !== 'multi'));
@@ -40,6 +33,7 @@ function listenToRoom() {
   unsubRoom = onSnapshot(doc(db, 'rooms', roomId), snap => {
     if (!snap.exists()) { lobbyMessage('This room has expired or was removed.', true); return; }
     roomData = snap.data();
+    if (roomData.status === 'playing' && Array.isArray(roomData.questions)) window.rememberFootballQuestions?.(roomData.questions);
     if (roomData.status === 'waiting') { section('multiLobby', false); section('multiWaiting', true); section('multiMatch', false); $('roomCodeDisplay').textContent = roomId; }
     else if (roomData.status === 'playing' || roomData.status === 'finished') { section('multiLobby', false); section('multiWaiting', false); section('multiMatch', true); }
     refreshMultiplayer();
