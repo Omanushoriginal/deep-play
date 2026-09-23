@@ -1,0 +1,41 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isPlayer(roomId) {
+      return signedIn() && request.auth.uid in
+        get(/databases/$(database)/documents/rooms/$(roomId)).data.playerIds;
+    }
+
+    match /rooms/{roomId} {
+      allow create: if signedIn()
+        && request.resource.data.host == request.auth.uid
+        && request.resource.data.playerIds == [request.auth.uid]
+        && request.resource.data.status == 'waiting';
+      allow read: if signedIn()
+        && (request.auth.uid in resource.data.playerIds || resource.data.status == 'waiting');
+      allow update: if signedIn() && (
+        (request.auth.uid in resource.data.playerIds
+          && request.resource.data.playerIds.size() <= 2
+          && request.resource.data.playerIds.hasAll(resource.data.playerIds))
+        || (resource.data.status == 'waiting'
+          && resource.data.playerIds.size() == 1
+          && request.resource.data.playerIds.size() == 2
+          && request.resource.data.playerIds.hasAll(resource.data.playerIds)
+          && request.auth.uid in request.resource.data.playerIds
+          && !(request.auth.uid in resource.data.playerIds)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['playerIds']))
+      );
+      allow delete: if signedIn() && resource.data.host == request.auth.uid;
+    }
+
+    match /rooms/{roomId}/players/{playerId} {
+      allow read: if isPlayer(roomId);
+      allow create, update: if isPlayer(roomId) && request.auth.uid == playerId;
+      allow delete: if isPlayer(roomId) && request.auth.uid == playerId;
+    }
+  }
+}
