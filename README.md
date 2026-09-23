@@ -1,6 +1,6 @@
 # DEEP PLAY
 
-A no-options football trivia game built as a static website. It uses a curated pool of tournament trivia and iconic football moments; match-result archive questions are not included. Each 15-question round includes three iconic-moment questions. Answers are typed; accepted accents and common short name variants are normalized automatically. Play solo, or play a live, share-code group match with up to eight players.
+A no-options football trivia game built as a static website, with exactly 250 curated questions: 65 tournament-trivia questions and 185 iconic-moment questions, including 141 additions about memorable World Cup and Champions League moments. Match-result archive questions are not included. Each 15-question round includes three iconic-moment questions. Answers are typed; accepted accents and common short name variants are normalized automatically. Play solo, or play a live, share-code group match with up to eight players.
 
 ## Run locally
 
