@@ -46,33 +46,46 @@ function listenToRoom() {
   }, error => lobbyMessage(error.message, true));
   unsubPlayers = onSnapshot(collection(db, 'rooms', roomId, 'players'), snap => {
     playerData = snap.docs.map(item => ({ id: item.id, ...item.data() }));
-    const opponent = playerData.find(p => p.id !== uid);
-    $('waitingPlayers').textContent = opponent ? `${opponent.name} is in. Ready when you are.` : 'Waiting for your opponent…';
-    $('beginMatch').classList.toggle('hidden', !(roomData?.host === uid && playerData.length === 2 && roomData.status === 'waiting'));
+    const count = playerData.length;
+    $('waitingPlayers').textContent = `${count}/8 PLAYERS · ${count < 2 ? 'NEED 2 TO KICK OFF' : 'WAITING FOR PLAYERS OR HOST TO START'}`;
+    $('beginMatch').classList.toggle('hidden', !(roomData?.host === uid && count >= 2 && count <= 8 && roomData.status === 'waiting'));
     refreshMultiplayer();
   }, error => lobbyMessage(error.message, true));
 }
 function refreshMultiplayer() {
   if (!roomData || !myPlayer) return;
-  const me = playerData.find(p => p.id === uid); const opponent = playerData.find(p => p.id !== uid);
+  const me = playerData.find(p => p.id === uid);
   if (me) myPlayer = me;
-  if (!me || !opponent) return;
-  $('myScore').textContent = me.score || 0; $('opponentName').textContent = opponent.name;
-  $('opponentScore').textContent = opponent.score || 0;
+  if (!me) return;
+  const standings = [...playerData].sort((a, b) => (b.score || 0) - (a.score || 0) || a.name.localeCompare(b.name));
+  const list = $('multiStandings');
+  list.replaceChildren();
+  standings.forEach((player, index) => {
+    const row = document.createElement('div'); row.className = `standing-row${player.id === uid ? ' is-you' : ''}`;
+    const rank = document.createElement('span'); rank.textContent = String(index + 1).padStart(2, '0');
+    const name = document.createElement('span'); name.textContent = player.id === uid ? `${player.name} (YOU)` : player.name;
+    const points = document.createElement('strong'); points.textContent = String(player.score || 0);
+    row.append(rank, name, points); list.append(row);
+  });
+  const allFinished = playerData.length >= 2 && playerData.every(player => player.finished);
+  const unfinished = playerData.filter(player => !player.finished).length;
+  $('opponentStatus').textContent = allFinished ? 'FULL TIME · FINAL STANDINGS ABOVE' : `${unfinished} PLAYER${unfinished === 1 ? '' : 'S'} STILL PLAYING`;
   if (roomData.status === 'waiting') return;
-  if (me.finished && opponent.finished) {
+  if (allFinished) {
     $('multiQuestion').textContent = 'THE FINAL WHISTLE.';
     $('multiAnswer').disabled = true; $('multiSubmit').disabled = true;
     $('multiCounter').textContent = 'FULL TIME';
-    $('opponentStatus').textContent = `${me.score}–${opponent.score} · ${me.name} v ${opponent.name}`;
+    $('opponentStatus').textContent = 'FINAL STANDINGS ABOVE';
     $('multiFinal').classList.remove('hidden');
-    $('multiFinal').textContent = me.score === opponent.score ? 'IT’S A DRAW.' : me.score > opponent.score ? 'YOU WIN. CLASS ACT.' : 'THEY TAKE THE POINTS.';
+    const bestScore = Math.max(...playerData.map(player => player.score || 0));
+    const leaders = playerData.filter(player => (player.score || 0) === bestScore);
+    $('multiFinal').textContent = me.score < bestScore ? 'THEY TAKE THE POINTS.' : leaders.length > 1 ? 'IT’S A TIE AT THE TOP.' : 'YOU WIN. CLASS ACT.';
     return;
   }
   if (me.finished) {
     $('multiQuestion').textContent = 'YOU’RE FULL TIME.';
     $('multiAnswer').disabled = true; $('multiSubmit').disabled = true;
-    $('multiCounter').textContent = '15 / 15'; $('opponentStatus').textContent = `Waiting for ${opponent.name} to finish · ${me.score}–${opponent.score}`;
+    $('multiCounter').textContent = '15 / 15'; $('opponentStatus').textContent = `WAITING FOR ${unfinished} PLAYER${unfinished === 1 ? '' : 'S'} TO FINISH`;
     return;
   }
   $('multiFinal').classList.add('hidden');
@@ -81,7 +94,7 @@ function refreshMultiplayer() {
   $('multiCategory').textContent = item.cat; $('multiCounter').textContent = `${String(me.index + 1).padStart(2, '0')} / 15`;
   $('multiQuestion').textContent = item.q;
   $('multiAnswer').disabled = waitingForAdvance; $('multiSubmit').disabled = waitingForAdvance;
-  $('opponentStatus').textContent = opponent.finished ? `${opponent.name} finished · ${me.score}–${opponent.score}` : `${opponent.name} · ${opponent.index || 0} / 15 answered`;
+  $('opponentStatus').textContent = `${playerData.filter(player => player.finished).length}/${playerData.length} PLAYERS FINISHED`;
 }
 async function createRoom() {
   try {
@@ -108,7 +121,7 @@ async function joinRoom() {
       const room = snap.data();
       if (room.status !== 'waiting') throw new Error('This match has already kicked off.');
       if (room.playerIds.includes(uid)) { joined = true; return; }
-      if (room.playerIds.length >= 2) throw new Error('This room is full.');
+      if (room.playerIds.length >= 8) throw new Error('This room is full (8 players maximum).');
       tx.update(roomRef, { playerIds: [...room.playerIds, uid] }); joined = true;
     });
     const name = playerName();
@@ -120,7 +133,7 @@ async function joinRoom() {
 }
 async function kickOff() {
   try {
-    if (playerData.length !== 2 || roomData?.host !== uid) return;
+    if (playerData.length < 2 || playerData.length > 8 || roomData?.host !== uid) return;
     lobbyMessage('Loading the historical match archive…');
     await window.questionBankReady;
     await updateDoc(doc(db, 'rooms', roomId), { status: 'playing', questions: roundQuestions() });

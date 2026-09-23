@@ -1,6 +1,6 @@
 # DEEP PLAY
 
-A no-options football trivia game built as a static website. The app loads a pool of 2,000 distinct questions: 65 editorial trivia questions plus historical match-result questions from World Cup, UEFA EURO and Champions League archives. Answers are typed; accepted accents and common short name variants are normalized automatically. Play solo, or challenge a friend in a live, share-code head-to-head match.
+A no-options football trivia game built as a static website. The app loads a pool of 2,000 distinct questions: 65 editorial trivia questions plus historical match-result questions from World Cup, UEFA EURO and Champions League archives. Answers are typed; accepted accents and common short name variants are normalized automatically. Play solo, or play a live, share-code group match with up to eight players.
 
 ## Run locally
 
@@ -13,9 +13,9 @@ Serve the folder over HTTP (for example, in PowerShell run `py -m http.server 80
 3. In **Authentication → Sign-in method**, enable **Anonymous** sign-in. In **Authentication → Settings → Authorized domains**, add your GitHub Pages host, such as `your-name.github.io`.
 4. Create a **Cloud Firestore** database.
 5. Open the Firestore **Rules** tab, paste in the contents of `firestore.rules`, and publish.
-6. Commit and push the Firebase config and rules with the site. Open the deployed page; one player creates a room and shares the five-character code for the other to join.
+6. Commit and push the Firebase config and rules with the site. Open the deployed page; one player creates a room and shares the five-character code for 1–7 friends to join. The host can start once at least two players are present; rooms allow up to eight.
 
-The Firebase web config is meant to be included in a browser app. Restrict its API key to your site's domain in Google Cloud API key settings. The included rules require anonymous authentication, limit rooms to two players, and limit player documents to their owner. This is a casual trivia game: question data and scoring run in the browser, so it is not designed for prize play or cheat-proof competition. Rooms are not automatically expired; the room creator can remove an old room from Firestore if desired.
+The Firebase web config is meant to be included in a browser app. Restrict its API key to your site's domain in Google Cloud API key settings. The included rules require anonymous authentication, limit rooms to eight players, and limit player documents to their owner. This is a casual trivia game: question data and scoring run in the browser, so it is not designed for prize play or cheat-proof competition. Rooms are not automatically expired; the room creator can remove an old room from Firestore if desired.
 
 ## Deploy with GitHub Pages
 
@@ -33,4 +33,3 @@ Edit the `bank` array in `app.js`. Each entry has a `cat`, `q`, an array of acce
 ## Sources
 
 The quiz is an unofficial fan project. The hand-written questions reference [FIFA World Cup records](https://www.fifa.com/en/articles/quickest-fastest-goals) and [UEFA EURO history](https://www.uefa.com/uefaeuro/history/). Match-result questions are parsed from openfootball's public-domain [Champions League](https://github.com/openfootball/champions-league), [World Cup](https://github.com/openfootball/worldcup) and [EURO](https://github.com/openfootball/euro) datasets. The start screen reports the number loaded if the archive is unavailable or incomplete.
-
