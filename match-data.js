@@ -57,14 +57,26 @@ function parseMatches(text, source) {
     if (!home || !away) continue;
     home = home.replace(/\s+/g, ' ').trim(); away = away.replace(/\s+/g, ' ').trim();
     if (!home || !away || home === away) continue;
-    const score = `${homeGoals}-${awayGoals}`;
-    result.push({
-      id: `archive:${source.label}:${matchDate}:${home}:${away}:${score}`,
-      cat: source.cat,
-      q: `What was the full-time score when ${home} played ${away} in the ${source.label}${matchDate ? ` (${matchDate})` : ''}?`,
-      a: [score, `${homeGoals}:${awayGoals}`, `${homeGoals} ${awayGoals}`],
-      fact: `The match finished ${homeGoals}–${awayGoals}.`
-    });
+    if (homeGoals === awayGoals) continue;
+    const winner = Number(homeGoals) > Number(awayGoals) ? home : away;
+    const loser = winner === home ? away : home;
+    const context = `in the ${source.label}${matchDate ? ` (${matchDate})` : ''}`;
+    result.push(
+      {
+        id: `archive:${source.label}:${matchDate}:${home}:${away}:winner`,
+        cat: source.cat,
+        q: `Which team defeated ${loser} ${context}?`,
+        a: [winner],
+        fact: `${winner} beat ${loser}.`
+      },
+      {
+        id: `archive:${source.label}:${matchDate}:${home}:${away}:loser`,
+        cat: source.cat,
+        q: `Which team did ${winner} defeat ${context}?`,
+        a: [loser],
+        fact: `${winner} beat ${loser}.`
+      }
+    );
   }
   return result;
 }

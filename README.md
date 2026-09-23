@@ -1,6 +1,6 @@
 # DEEP PLAY
 
-A no-options football trivia game built as a static website. The app loads a pool of up to 3,000 distinct questions: curated tournament trivia and iconic moments, plus historical match-result questions from FIFA World Cups, UEFA EURO, Copa América and Champions League archives. Each round includes three iconic-moment questions. Answers are typed; accepted accents and common short name variants are normalized automatically. Play solo, or play a live, share-code group match with up to eight players.
+A no-options football trivia game built as a static website. The app loads a pool of up to 3,000 distinct questions: curated tournament trivia and iconic moments, plus historical match-outcome questions from FIFA World Cups, UEFA EURO, Copa América and Champions League archives. Archive questions ask which team won or lost; they do not ask for scorelines. Each round includes three iconic-moment questions. Answers are typed; accepted accents and common short name variants are normalized automatically. Play solo, or play a live, share-code group match with up to eight players.
 
 ## Run locally
 
@@ -32,4 +32,4 @@ Edit the `bank` array in `app.js` for tournament trivia, or `iconic-moments.js` 
 
 ## Sources
 
-The quiz is an unofficial fan project. Iconic-moment questions reference official [FIFA World Cup archives](https://www.fifa.com/en/tournaments/mens/worldcup) and [UEFA competition archives](https://www.uefa.com/uefachampionsleague/history/). Match-result questions are parsed from openfootball's public-domain [Champions League](https://github.com/openfootball/champions-league), [World Cup](https://github.com/openfootball/worldcup), [EURO](https://github.com/openfootball/euro) and [Copa América](https://github.com/openfootball/copa-america) datasets. The start screen reports the count actually loaded if the archive is unavailable or incomplete.
+The quiz is an unofficial fan project. Iconic-moment questions reference official [FIFA World Cup archives](https://www.fifa.com/en/tournaments/mens/worldcup) and [UEFA competition archives](https://www.uefa.com/uefachampionsleague/history/). Match outcomes are parsed from openfootball's public-domain [Champions League](https://github.com/openfootball/champions-league), [World Cup](https://github.com/openfootball/worldcup), [EURO](https://github.com/openfootball/euro) and [Copa América](https://github.com/openfootball/copa-america) datasets. The start screen reports the count actually loaded if the archive is unavailable or incomplete.
